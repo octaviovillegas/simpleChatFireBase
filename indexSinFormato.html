@@ -1,0 +1,46 @@
+<html>
+<head>
+  <title>Firebase Chat Example</title>
+  <script type="text/javascript" src="https://cdn.firebase.com/v0/firebase.js"></script>
+  <script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'></script>
+  <link rel="stylesheet" type="text/css" href="https://www.firebase.com/css/example.css">
+</head>
+<body>
+<div id='messagesDiv'></div>
+<input type='text' id='nameInput' placeholder='ingrese usuario' style="
+    border-radius: 15px;
+    box-shadow: 2px -1px 3px 2px red;
+">
+<input type='text' id='messageInput' placeholder='mensajes ...'>
+<script type='text/javascript'>
+
+  // Aca ponemos la referencia a su firebase
+  var messagesRef = new Firebase('https://chat1-81fb0.firebaseio.com/');
+
+  // Cuando presionen el ENTER , guardamos los datos en firebase.
+  $('#messageInput').keypress(function (e) {
+    if (e.keyCode == 13) {
+      var nombre = $('#nameInput').val();
+      var text = $('#messageInput').val();
+      var fechaIngreso=Firebase.ServerValue.TIMESTAMP ;
+      console.log(fechaIngreso);
+      messagesRef.push({usuario:nombre, mensaje:text,cuando:fechaIngreso});
+      $('#messageInput').val('');
+    }
+  });
+
+  // agregamos la funcion que funciona de callback que es disparada por cada mensaje de chat.
+  messagesRef.on('child_added', function (snapshot) {
+    var mensajeFireBase = snapshot.val();
+    //
+    var fecha=new Date(mensajeFireBase.cuando);
+    console.log(fecha);
+    var hora =fecha.getHours();
+ var minutos =fecha.getMinutes();
+
+    $('<div/>').text(mensajeFireBase.mensaje + "->"+hora+":"+ minutos).prepend($('<em/>').text(mensajeFireBase.usuario+': ')).appendTo($('#messagesDiv'));
+    $('#messagesDiv')[0].scrollTop = $('#messagesDiv')[0].scrollHeight;
+  });
+</script>
+</body>
+</html>
